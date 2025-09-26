@@ -55,6 +55,7 @@ fieldset > * {
 
 .warning {
   background-color: var(--red-6);
+  color: red;
 }
 
 .result, #summary {

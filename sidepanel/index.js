@@ -109,30 +109,39 @@ async function showSummary(text) {
 async function generateMCQ(text) {
   try {
     const options = {
-      sharedContext: 'You are summarizing a subject\'s content for a student, make it as clear as possible. Generate MCQs too, do not include summary',
-      type: summaryTypeSelect.value,
+      sharedContext: 'You are summarizing a subject\'s content for a student, make it as clear as possible. Generate MCQs too, keep the answers at the end together in an answer key. Have the answers on separate lines, and be in bold.',
+      type: 'tldr',
       format: summaryFormatSelect.value,
-      length: length.value
+      length: summaryLengthSelect.value
     };
 
     const availability = await Summarizer.availability();
     let summarizer;
-    if (availability === 'unavailable') {
-      return 'Summarizer API is not available';
-    }
-    if (availability === 'available') {
 
-      summarizer = await Summarizer.create(options);
-    } else {
+    if (availability === 'unavailable') return 'Summarizer API is not available';
 
-      summarizer = await Summarizer.create(options);
-      summarizer.addEventListener('downloadprogress', (e) => {
-        console.log(`Downloaded ${e.loaded * 100}%`);
-      });
+    summarizer = await Summarizer.create(options);
+    if (availability !== 'available') {
+      summarizer.addEventListener('downloadprogress', (e) =>
+        console.log(`Downloaded ${e.loaded * 100}%`)
+      );
       await summarizer.ready;
     }
-    const mcq = await summarizer.summarize(text);
+
+    let mcq = await summarizer.summarize(text);
     summarizer.destroy();
+
+
+    const match = mcq.match(/(MCQ|Multiple Choice Questions|Questions)[:\s]*/i);
+    if (match) {
+      mcq = mcq.slice(match.index + match[0].length);
+    }
+
+    mcq = mcq.trim().replace(/^s:\*\*/, '');
+
+
+    mcq = `### 🧠 Multiple Choice Questions\n\n${mcq}`;
+    
     return mcq;
   } catch (e) {
     console.log('MCQ generation failed');
