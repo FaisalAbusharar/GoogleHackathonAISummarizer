@@ -80,19 +80,30 @@ fieldset > * {
   padding: 0.5rem;
   font-size: large;
   
-  border: 2px solid transparent;  /* required for gradient border */
+  border: 2px solid transparent;  
   background-image: 
-    linear-gradient(#1e1e2f, #1e1e2f),       /* inner background */
-    linear-gradient(270deg, #e100ff, #9800fe, #ff00ea); /* animated gradient */
+    linear-gradient(#1e1e2f, #1e1e2f),       
+    linear-gradient(270deg, #e100ff, #9800fe, #ff00ea); 
   background-origin: border-box;
   background-clip: padding-box, border-box;
   animation: gradient-move 3s linear infinite;
+  transition: transform 0.3s ease-in-out;
+}
+
+#length:hover, #type:hover, #format:hover {
+  transform: scale(1.15); 
+   background-image: 
+    linear-gradient(#e100ff, #9800fe, #ff00ea),       
+    linear-gradient(270deg, #1e1e2f, #1e1e2f); 
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
 }
 
 
 label {
   /* font-weight: bold; */
   color: white;
+  
 }
 
 legend {
@@ -100,7 +111,7 @@ legend {
 }
 
 
-/* Keyframes to move the gradient */
+
 @keyframes gradient-move {
   0% {
     background-position: 0% 50%, 0% 50%;
