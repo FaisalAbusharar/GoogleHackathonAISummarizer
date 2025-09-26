@@ -14,6 +14,8 @@ const warningElement = document.body.querySelector('#warning');
 const summaryTypeSelect = document.querySelector('#type');
 const summaryFormatSelect = document.querySelector('#format');
 const summaryLengthSelect = document.querySelector('#length');
+const mcqElement = document.body.querySelector('#mcq');
+
 
 function onConfigChange() {
   const oldContent = pageContent;
@@ -41,6 +43,7 @@ async function onContentChange(newContent) {
   }
   pageContent = newContent;
   let summary;
+  let mcq;
   if (newContent) {
     if (newContent.length > MAX_MODEL_CHARS) {
       updateWarning(
@@ -50,17 +53,21 @@ async function onContentChange(newContent) {
       updateWarning('');
     }
     showSummary('Loading...');
+    showMCQ('Loading MCQ...')
     summary = await generateSummary(newContent);
+    mcq = await generateMCQ(newContent);
   } else {
     summary = "There's nothing to summarize...";
+    mcq = "No MCQs generated"
   }
   showSummary(summary);
+  showMCQ(mcq);
 }
 
 async function generateSummary(text) {
   try {
     const options = {
-      sharedContext: 'You are summarizing a subject\'s content for a student, make it as clear as possible.',
+      sharedContext: 'You are summarizing a subject\'s content for a student, make it as clear as possible.'  ,
       type: summaryTypeSelect.value,
       format: summaryFormatSelect.value,
       length: length.value
@@ -95,6 +102,49 @@ async function generateSummary(text) {
 async function showSummary(text) {
   summaryElement.innerHTML = DOMPurify.sanitize(marked.parse(text));
 }
+
+
+
+
+async function generateMCQ(text) {
+  try {
+    const options = {
+      sharedContext: 'You are summarizing a subject\'s content for a student, make it as clear as possible. Generate MCQs too, do not include summary',
+      type: summaryTypeSelect.value,
+      format: summaryFormatSelect.value,
+      length: length.value
+    };
+
+    const availability = await Summarizer.availability();
+    let summarizer;
+    if (availability === 'unavailable') {
+      return 'Summarizer API is not available';
+    }
+    if (availability === 'available') {
+
+      summarizer = await Summarizer.create(options);
+    } else {
+
+      summarizer = await Summarizer.create(options);
+      summarizer.addEventListener('downloadprogress', (e) => {
+        console.log(`Downloaded ${e.loaded * 100}%`);
+      });
+      await summarizer.ready;
+    }
+    const mcq = await summarizer.summarize(text);
+    summarizer.destroy();
+    return mcq;
+  } catch (e) {
+    console.log('MCQ generation failed');
+    console.error(e);
+    return 'Error: ' + e.message;
+  }
+}
+
+async function showMCQ(text) {
+  mcqElement.innerHTML = DOMPurify.sanitize(marked.parse(text));
+}
+
 
 async function updateWarning(warning) {
   warningElement.textContent = warning;
