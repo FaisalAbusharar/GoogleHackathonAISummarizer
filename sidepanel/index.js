@@ -60,7 +60,7 @@ async function onContentChange(newContent) {
 async function generateSummary(text) {
   try {
     const options = {
-      sharedContext: 'this is a website',
+      sharedContext: 'You are summarizing a subject\'s content for a student, make it as clear as possible.',
       type: summaryTypeSelect.value,
       format: summaryFormatSelect.value,
       length: length.value
@@ -104,9 +104,3 @@ async function updateWarning(warning) {
     warningElement.setAttribute('hidden', '');
   }
 }
-
-const lengthSelect = document.getElementById('length');
-const choices = new Choices(lengthSelect, {
-  searchEnabled: false,       // optional: disable search
-  itemSelectText: '',         // optional: hide "Press to select" text
-});
