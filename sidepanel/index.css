@@ -11,7 +11,9 @@ body {
   margin: auto;
   padding: var(--size-2);
   font-size: var(--font-size-2);
+  background: rgb(34, 33, 33) !important; 
 }
+
 
 :where(ol, ul) {
   padding: 0 var(--size-3);
@@ -28,13 +30,19 @@ fieldset > * {
   margin-bottom: var(--size-2);
 }
 
+
+
 .card {
   flex-basis: var(--size-content-1);
   display: flex;
   flex-direction: column;
   gap: var(--size-2);
-  background: var(--surface-3);
-  border: 1px solid var(--surface-1);
+  background-image:
+    linear-gradient(45deg, #282529, #0e0a11), 
+    linear-gradient( #e100ff, #9800fe);        
+  background-origin: border-box;
+  background-clip: border-box, padding-box;  
+  border: 1px solid var(--surfae-1);
   padding: var(--size-4);
   border-radius: var(--radius-3);
   box-shadow: var(--shadow-2);
@@ -49,10 +57,58 @@ fieldset > * {
   background-color: var(--red-6);
 }
 
-.result {
+.result, #summary {
   position: relative;
-  background: #00aabb;
   border-radius: 0.4em;
   color: white;
   padding: 1em;
+
+  border-radius: 6px;
+  padding: 0.5rem;
+  border: 2px solid transparent;
+  background-image:
+    linear-gradient(45deg, #1e1e2f, #1e1e2f), 
+    linear-gradient( #e100ff, #9800fe);       
+  background-origin: border-box;
+  background-clip: border-box, padding-box;  
+}
+
+#length, #type, #format {
+  margin: 20px;
+  color: white;
+  border-radius: 6px;
+  padding: 0.5rem;
+  font-size: large;
+  
+  border: 2px solid transparent;  /* required for gradient border */
+  background-image: 
+    linear-gradient(#1e1e2f, #1e1e2f),       /* inner background */
+    linear-gradient(270deg, #e100ff, #9800fe, #ff00ea); /* animated gradient */
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  animation: gradient-move 3s linear infinite;
+}
+
+
+label {
+  /* font-weight: bold; */
+  color: white;
+}
+
+legend {
+  color: white;
+}
+
+
+/* Keyframes to move the gradient */
+@keyframes gradient-move {
+  0% {
+    background-position: 0% 50%, 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%, 0% 50%;
+  }
+  100% {
+    background-position: 0% 50%, 0% 50%;
+  }
 }

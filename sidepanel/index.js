@@ -52,7 +52,7 @@ async function onContentChange(newContent) {
     showSummary('Loading...');
     summary = await generateSummary(newContent);
   } else {
-    summary = "There's nothing to summarize";
+    summary = "There's nothing to summarize...";
   }
   showSummary(summary);
 }
@@ -104,3 +104,9 @@ async function updateWarning(warning) {
     warningElement.setAttribute('hidden', '');
   }
 }
+
+const lengthSelect = document.getElementById('length');
+const choices = new Choices(lengthSelect, {
+  searchEnabled: false,       // optional: disable search
+  itemSelectText: '',         // optional: hide "Press to select" text
+});
