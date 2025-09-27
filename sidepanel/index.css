@@ -159,3 +159,7 @@ legend {
   background-origin: border-box;
   background-clip: padding-box, border-box;
 }
+
+#mcq-list {
+  color: white;
+}

@@ -5,7 +5,7 @@ import { marked } from 'marked';
 const MAX_MODEL_CHARS = 4000;
 
 let pageContent = '';
-let currentSummary = null; // 
+let currentSummary = null;
 
 const summaryElement = document.querySelector('#summary');
 const warningElement = document.querySelector('#warning');
@@ -57,7 +57,7 @@ async function onContentChange(newContent) {
 
   currentSummary = summary;
   showSummary(summary);
-  mcqElement.style.display = 'none'; 
+  mcqElement.style.display = 'none';
   generateMcqButton.disabled = !summary || summary.startsWith("Error") || summary === "There's nothing to summarize...";
 }
 
@@ -94,18 +94,22 @@ async function generateSummary(text) {
 //& ------------------- Generate MCQ on Button Click -------------------
 generateMcqButton.addEventListener('click', async () => {
   if (!currentSummary) {
-    showMCQ('Please summarize content first.');
+    showMCQ([]); // Pass empty array
     generateMcqButton.disabled = true;
     return;
   }
 
   generateMcqButton.textContent = 'Generating...';
 
-
   const mcq = await generateMCQ(currentSummary);
-  showMCQ(mcq);
+  if (typeof mcq === 'string') {
+    showMCQ([]); // Show error fallback
+    mcqElement.innerHTML = `<div class="text-danger">${mcq}</div>`;
+  } else {
+    showMCQ(mcq);
+    mcqElement.style.display = 'block';
+  }
 
-  mcqElement.style.display = 'block';
   generateMcqButton.disabled = false;
   generateMcqButton.textContent = 'Generate MCQs';
 });
@@ -114,9 +118,19 @@ generateMcqButton.addEventListener('click', async () => {
 async function generateMCQ(text) {
   try {
     const options = {
-      sharedContext: `You are summarizing a subject's content for a student. Generate MCQs too. Keep the answers in a bold answer key at the end. Separate lines.`,
+      sharedContext: `You are a study assistant. Based on the provided summary, generate multiple choice questions in the following JSON format:
+
+[
+  {
+    "question": "What is the capital of France?",
+    "choices": ["A. Paris", "B. Rome", "C. Madrid", "D. Berlin"],
+    "answer": "A"
+  }
+]
+
+Only output raw JSON. Do not add any explanation, Markdown, or headings.`,
       type: 'tldr',
-      format: summaryFormatSelect.value,
+      format: 'plain-text',
       length: summaryLengthSelect.value
     };
 
@@ -131,19 +145,18 @@ async function generateMCQ(text) {
       await summarizer.ready;
     }
 
-    let mcq = await summarizer.summarize(text);
+    const raw = await summarizer.summarize(text);
     summarizer.destroy();
 
-
-    const match = mcq.match(/(MCQ|Multiple Choice Questions|Questions)[:\s]*/i);
-    if (match) {
-      mcq = mcq.slice(match.index + match[0].length);
+    let mcqList;
+    try {
+      mcqList = JSON.parse(raw);
+    } catch (parseError) {
+      console.error('Failed to parse MCQ JSON:', raw);
+      return 'Error: Could not parse generated MCQs. Please try again.';
     }
 
-    mcq = mcq.trim().replace(/^s:\*\*/, '');
-    mcq = `### 🧠 Multiple Choice Questions\n\n${mcq}`;
-
-    return mcq;
+    return mcqList;
   } catch (e) {
     console.error('MCQ generation failed', e);
     return 'Error: ' + e.message;
@@ -155,8 +168,49 @@ function showSummary(text) {
   summaryElement.innerHTML = DOMPurify.sanitize(marked.parse(text));
 }
 
-function showMCQ(text) {
-  mcqElement.innerHTML = DOMPurify.sanitize(marked.parse(text));
+function showMCQ(mcqList) {
+  const container = document.getElementById('mcq');
+  container.innerHTML = ''; // Clear old MCQs
+
+  const inner = document.createElement('div');
+  inner.id = 'mcq-list';
+
+  if (!Array.isArray(mcqList) || mcqList.length === 0) {
+    inner.innerHTML = '<p>No MCQs to display.</p>';
+    container.appendChild(inner);
+    return;
+  }
+
+  mcqList.forEach((mcq, index) => {
+    const card = document.createElement('div');
+    card.className = 'card p-3 mb-3';
+
+    const question = document.createElement('p');
+    question.textContent = `Q${index + 1}: ${mcq.question}`;
+    card.appendChild(question);
+
+    const feedback = document.createElement('div');
+    feedback.className = 'mt-2';
+
+    mcq.choices.forEach(choice => {
+      const btn = document.createElement('button');
+      btn.textContent = choice;
+      btn.className = 'btn btn-outline-primary m-1';
+      btn.addEventListener('click', () => {
+        const isCorrect = choice.startsWith(mcq.answer);
+        feedback.textContent = isCorrect ? '✅ Correct!' : `❌ Incorrect. Correct answer: ${mcq.answer}`;
+        feedback.style.color = isCorrect ? 'green' : 'red';
+        card.querySelectorAll('button').forEach(b => b.disabled = true);
+      });
+
+      card.appendChild(btn);
+    });
+
+    card.appendChild(feedback);
+    inner.appendChild(card);
+  });
+
+  container.appendChild(inner);
 }
 
 function updateWarning(warning) {
