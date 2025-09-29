@@ -14,11 +14,13 @@ const summaryFormatSelect = document.querySelector('#format');
 const summaryLengthSelect = document.querySelector('#length');
 const mcqElement = document.querySelector('#mcq');
 const generateMcqButton = document.getElementById('generate-mcq');
+const refreshExtractionButton = document.querySelector("#extractBtn");
 
 // ------------------- Event Listeners -------------------
 [summaryTypeSelect, summaryFormatSelect, summaryLengthSelect].forEach((e) =>
   e.addEventListener('change', onConfigChange)
 );
+
 
 chrome.storage.session.get('pageContent', ({ pageContent }) => {
   onContentChange(pageContent);
@@ -37,7 +39,7 @@ function onConfigChange() {
 
 //* ------------------- Main Content Change -------------------
 async function onContentChange(newContent) {
-  if (pageContent === newContent) return;
+  if (pageContent === newContent) return false;
 
   pageContent = newContent;
   let summary;
@@ -59,6 +61,7 @@ async function onContentChange(newContent) {
   showSummary(summary);
   mcqElement.style.display = 'none';
   generateMcqButton.disabled = !summary || summary.startsWith("Error") || summary === "There's nothing to summarize...";
+  
 }
 
 //$ ------------------- Generate Summary -------------------
@@ -91,7 +94,7 @@ async function generateSummary(text) {
   }
 }
 
-//& ------------------- Generate MCQ on Button Click -------------------
+//& ------------------- Button Clicks -------------------
 generateMcqButton.addEventListener('click', async () => {
   if (!currentSummary) {
     showMCQ([]); // Pass empty array
@@ -114,6 +117,24 @@ generateMcqButton.addEventListener('click', async () => {
   generateMcqButton.textContent = 'Generate MCQs';
 });
 
+refreshExtractionButton.addEventListener("click", async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+  // 🛑 Ignore if you're in the extension's own page
+  if (tab.url.startsWith("chrome-extension://")) {
+    alert("Open a regular webpage to extract content from.");
+    return;
+  }
+
+  await chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    func: () => {
+      const content = document.body.innerText || '';
+      console.log("✅ Extracted from:", window.location.href);
+      chrome.storage.session.set({ pageContent: content });
+    },
+  });
+});
 //! ------------------- Generate MCQ Function -------------------
 async function generateMCQ(text) {
   try {
@@ -187,6 +208,7 @@ function showMCQ(mcqList) {
 
     const question = document.createElement('p');
     question.textContent = `Q${index + 1}: ${mcq.question}`;
+    question.style.color = 'white';
     card.appendChild(question);
 
     const feedback = document.createElement('div');
