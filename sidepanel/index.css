@@ -101,6 +101,11 @@ fieldset > * {
   background-clip: padding-box, border-box;
 }
 
+#warning {
+  color: red !important; 
+  font-size: large;
+}
+
 
 label {
   /* font-weight: bold; */
@@ -148,11 +153,12 @@ legend {
   background-origin: border-box;
   background-clip: padding-box, border-box;
   animation: gradient-move 3s linear infinite;
+  
   transition: transform 0.3s ease-in-out;
 }
 
 #generate-mcq:not(:disabled):hover {
-   transform: scale(1.15); 
+   transform: scale(1.05); 
    background-image: 
     linear-gradient(#e100ff, #9800fe, #ff00ea),       
     linear-gradient(270deg, #1e1e2f, #1e1e2f); 

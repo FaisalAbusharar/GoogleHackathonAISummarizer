@@ -2,7 +2,7 @@
 import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 
-const MAX_MODEL_CHARS = 4000;
+const MAX_MODEL_CHARS = 10000;
 
 let pageContent = '';
 let currentSummary = null;
@@ -37,6 +37,18 @@ function onConfigChange() {
   onContentChange(oldContent);
 }
 
+window.addEventListener('load', async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+  // Ignore extension pages
+  if (tab.url.startsWith("chrome-extension://")) return;
+
+  // Reload the tab
+  chrome.tabs.reload(tab.id, {}, () => {
+    console.log("Tab reloaded to enable content extraction");
+  });
+});
+
 //* ------------------- Main Content Change -------------------
 async function onContentChange(newContent) {
   if (pageContent === newContent) return false;
@@ -46,7 +58,8 @@ async function onContentChange(newContent) {
 
   if (newContent) {
     if (newContent.length > MAX_MODEL_CHARS) {
-      updateWarning(`Text is too long with ${newContent.length} characters (limit: ~4000).`);
+      updateWarning(`Text is too long with ${newContent.length} characters (limit: ~10000).`);
+      return;
     } else {
       updateWarning('');
     }
@@ -120,7 +133,6 @@ generateMcqButton.addEventListener('click', async () => {
 refreshExtractionButton.addEventListener("click", async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-  // 🛑 Ignore if you're in the extension's own page
   if (tab.url.startsWith("chrome-extension://")) {
     alert("Open a regular webpage to extract content from.");
     return;
