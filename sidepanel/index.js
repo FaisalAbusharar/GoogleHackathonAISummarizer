@@ -148,8 +148,8 @@ refreshExtractionButton.addEventListener("click", async () => {
   });
 });
 //! ------------------- Generate MCQ Function -------------------
-async function generateMCQ(text) {
-  try {
+async function generateMCQ(text, retries = 2) {
+  async function attempt() {
     const options = {
       sharedContext: `You are a study assistant. Based on the provided summary, generate multiple choice questions in the following JSON format:
 
@@ -168,7 +168,7 @@ Only output raw JSON. Do not add any explanation, Markdown, or headings.`,
     };
 
     const availability = await Summarizer.availability();
-    if (availability === 'unavailable') return 'Summarizer API is not available';
+    if (availability === 'unavailable') throw new Error('Summarizer API is not available');
 
     const summarizer = await Summarizer.create(options);
     if (availability !== 'available') {
@@ -181,20 +181,54 @@ Only output raw JSON. Do not add any explanation, Markdown, or headings.`,
     const raw = await summarizer.summarize(text);
     summarizer.destroy();
 
-    let mcqList;
-    try {
-      mcqList = JSON.parse(raw);
-    } catch (parseError) {
-      console.error('Failed to parse MCQ JSON:', raw);
-      return 'Error: Could not parse generated MCQs. Please try again.';
+    const extracted = extractJSON(raw);
+    if (!extracted || !isValidMCQList(extracted)) {
+      console.error('Invalid MCQ format:', raw);
+      throw new Error('Malformed MCQ output.');
     }
 
-    return mcqList;
-  } catch (e) {
-    console.error('MCQ generation failed', e);
-    return 'Error: ' + e.message;
+    return extracted;
+  }
+
+  //! Retry logic
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await attempt();
+    } catch (e) {
+      console.warn(`Attempt ${i + 1} failed:`, e.message);
+      if (i === retries) return 'Error: ' + e.message;
+    }
   }
 }
+
+
+function extractJSON(raw) {
+  const jsonStart = raw.indexOf('[');
+  const jsonEnd = raw.lastIndexOf(']');
+  if (jsonStart !== -1 && jsonEnd !== -1) {
+    const jsonString = raw.slice(jsonStart, jsonEnd + 1);
+    try {
+      return JSON.parse(jsonString);
+    } catch (e) {
+      console.warn("Extracted JSON is still invalid:", jsonString);
+      return null;
+    }
+  }
+  return null;
+}
+
+
+function isValidMCQList(mcqList) {
+  if (!Array.isArray(mcqList)) return false;
+  return mcqList.every(mcq =>
+    typeof mcq.question === 'string' &&
+    Array.isArray(mcq.choices) &&
+    mcq.choices.length === 4 &&
+    mcq.choices.every(choice => typeof choice === 'string') &&
+    typeof mcq.answer === 'string'
+  );
+}
+
 
 //& ------------------- Render Functions -------------------
 function showSummary(text) {
