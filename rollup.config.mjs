@@ -1,13 +1,15 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import copy from 'rollup-plugin-copy';
+import resolve from '@rollup/plugin-node-resolve';
 
 export default [
   {
     input: 'sidepanel/index.js',
     output: {
       dir: 'dist/sidepanel',
-      format: 'iife',
+      format: 'es',
+      sourcemap: true
     },
     plugins: [
       commonjs(),
@@ -31,6 +33,7 @@ export default [
     plugins: [
       commonjs(),
       nodeResolve(),
+      resolve()
     ]
   }
 ];

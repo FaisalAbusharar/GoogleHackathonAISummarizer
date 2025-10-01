@@ -15,6 +15,26 @@ const summaryLengthSelect = document.querySelector('#length');
 const mcqElement = document.querySelector('#mcq');
 const generateMcqButton = document.getElementById('generate-mcq');
 const refreshExtractionButton = document.querySelector("#extractBtn");
+const exportButton = document.querySelector("#export-summary-pdf");
+
+
+//! ------------------- Export Features -------------------
+
+import { jsPDF } from 'jspdf';
+
+
+document.getElementById('export-summary-pdf').addEventListener('click', () => {
+  const doc = new jsPDF();
+  const text = currentSummary || "No summary available";
+  const lines = doc.splitTextToSize(text, 180);
+  doc.text(lines, 10, 10);
+  doc.save("summary.pdf");
+});
+
+function updateExportSummaryButton() {
+    const btn = document.getElementById('export-summary-pdf');
+    exportButton.disabled = !currentSummary || currentSummary.trim() === "" || currentSummary.startsWith("Error");
+}
 
 // ------------------- Event Listeners -------------------
 [summaryTypeSelect, summaryFormatSelect, summaryLengthSelect].forEach((e) =>
@@ -56,6 +76,8 @@ async function onContentChange(newContent) {
   pageContent = newContent;
   let summary;
 
+
+
   if (newContent) {
     if (newContent.length > MAX_MODEL_CHARS) {
       updateWarning(`Text is too long with ${newContent.length} characters (limit: ~10000).`);
@@ -66,6 +88,7 @@ async function onContentChange(newContent) {
 
     showSummary('Loading...');
     summary = await generateSummary(newContent);
+    updateExportSummaryButton();
   } else {
     summary = "There's nothing to summarize...";
   }
