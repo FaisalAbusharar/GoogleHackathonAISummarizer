@@ -31,10 +31,6 @@ document.getElementById('export-summary-pdf').addEventListener('click', () => {
   doc.save("summary.pdf");
 });
 
-function updateExportSummaryButton() {
-    const btn = document.getElementById('export-summary-pdf');
-    exportButton.disabled = !currentSummary || currentSummary.trim() === "" || currentSummary.startsWith("Error");
-}
 
 // ------------------- Event Listeners -------------------
 [summaryTypeSelect, summaryFormatSelect, summaryLengthSelect].forEach((e) =>
@@ -67,6 +63,7 @@ window.addEventListener('load', async () => {
   chrome.tabs.reload(tab.id, {}, () => {
     console.log("Tab reloaded to enable content extraction");
   });
+  updateExportSummaryButton();
 });
 
 //* ------------------- Main Content Change -------------------
@@ -88,7 +85,6 @@ async function onContentChange(newContent) {
 
     showSummary('Loading...');
     summary = await generateSummary(newContent);
-    updateExportSummaryButton();
   } else {
     summary = "There's nothing to summarize...";
   }
@@ -97,6 +93,7 @@ async function onContentChange(newContent) {
   showSummary(summary);
   mcqElement.style.display = 'none';
   generateMcqButton.disabled = !summary || summary.startsWith("Error") || summary === "There's nothing to summarize...";
+  exportButton.disabled = !summary || summary.startsWith("Error") || summary === "There's nothing to summarize...";
   
 }
 
