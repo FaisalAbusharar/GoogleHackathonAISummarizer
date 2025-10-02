@@ -17,6 +17,10 @@ const generateMcqButton = document.getElementById('generate-mcq');
 const refreshExtractionButton = document.querySelector("#extractBtn");
 const exportButton = document.querySelector("#export-summary-pdf");
 
+const followUpInputArea = document.getElementById('input');
+const followUpButton = document.getElementById("ask-follow-up")
+const followUpSummary = document.getElementById("follow-up-response")
+
 
 //! ------------------- Export Features -------------------
 
@@ -63,7 +67,6 @@ window.addEventListener('load', async () => {
   chrome.tabs.reload(tab.id, {}, () => {
     console.log("Tab reloaded to enable content extraction");
   });
-  updateExportSummaryButton();
 });
 
 //* ------------------- Main Content Change -------------------
@@ -94,19 +97,31 @@ async function onContentChange(newContent) {
   mcqElement.style.display = 'none';
   generateMcqButton.disabled = !summary || summary.startsWith("Error") || summary === "There's nothing to summarize...";
   exportButton.disabled = !summary || summary.startsWith("Error") || summary === "There's nothing to summarize...";
-  
+  followUpInputArea.hidden = !summary || summary.startsWith("Error") || summary === "There's nothing to summarize...";
 }
 
 //$ ------------------- Generate Summary -------------------
-async function generateSummary(text) {
+async function generateSummary(text,
+   context="You are summarizing a subject\'s content for a student, make it as clear as possible.",
+  forceFormat = false) {
   try {
-    const options = {
-      sharedContext: 'You are summarizing a subject\'s content for a student, make it as clear as possible.',
+
+     let options = {
+      sharedContext: context,
+      type: "tldr",
+      format: "markdown",
+      lenght: "short"
+    }
+
+
+    if (forceFormat == false) {
+     options = {
+      sharedContext: context,
       type: summaryTypeSelect.value,
       format: summaryFormatSelect.value,
       length: summaryLengthSelect.value
     };
-
+  } 
     const availability = await Summarizer.availability();
     if (availability === 'unavailable') return 'Summarizer API is not available';
 
@@ -167,6 +182,28 @@ refreshExtractionButton.addEventListener("click", async () => {
     },
   });
 });
+
+followUpButton.addEventListener('click', async () => {
+  const followUpText = document.getElementById('follow-up').value;
+
+  if (!followUpText || followUpText.trim() === "") {
+  alert("Please enter a question before submitting. " + followUpText);
+  return;
+}
+
+
+const question = "You said " + currentSummary + ". But " + followUpText + "?"
+
+followUpSummary.hidden = false;
+followUpSummary.textContent = "Thinking.."
+const followupResponse = await generateSummary(question, "A student is asking you a question based on your previous summary, answer the question in a simple yet easy to understand way", true)
+alert("Summary generated")
+followUpSummary.innerHTML = DOMPurify.sanitize(marked.parse(followupResponse));
+alert("Complete")
+
+
+})
+
 //! ------------------- Generate MCQ Function -------------------
 async function generateMCQ(text, retries = 2) {
   async function attempt() {
