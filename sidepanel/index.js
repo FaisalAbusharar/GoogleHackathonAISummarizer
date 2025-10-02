@@ -197,9 +197,7 @@ const question = "You said " + currentSummary + ". But " + followUpText + "?"
 followUpSummary.hidden = false;
 followUpSummary.textContent = "Thinking.."
 const followupResponse = await generateSummary(question, "A student is asking you a question based on your previous summary, answer the question in a simple yet easy to understand way", true)
-alert("Summary generated")
 followUpSummary.innerHTML = DOMPurify.sanitize(marked.parse(followupResponse));
-alert("Complete")
 
 
 })
