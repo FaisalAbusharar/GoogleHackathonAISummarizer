@@ -1,343 +1,39 @@
-/* global Summarizer */
-import DOMPurify from 'dompurify';
-import { marked } from 'marked';
+import { onContentChange, onConfigChange } from './core/summary.js';
+import { setupMCQButton } from './core/mcq.js';
+import { setupFollowUp } from './core/followup.js';
+import { setupExportButtons } from './core/export.js';
 
-const MAX_MODEL_CHARS = 10000;
+document.addEventListener('DOMContentLoaded', async () => {
+  setupMCQButton();
+  setupFollowUp();
+  setupExportButtons();
 
-let pageContent = '';
-let currentSummary = null;
-
-const summaryElement = document.querySelector('#summary');
-const warningElement = document.querySelector('#warning');
-const summaryTypeSelect = document.querySelector('#type');
-const summaryFormatSelect = document.querySelector('#format');
-const summaryLengthSelect = document.querySelector('#length');
-const mcqElement = document.querySelector('#mcq');
-const generateMcqButton = document.getElementById('generate-mcq');
-const refreshExtractionButton = document.querySelector("#extractBtn");
-const exportButton = document.querySelector("#export-summary-pdf");
-
-const followUpInputArea = document.getElementById('input');
-const followUpButton = document.getElementById("ask-follow-up")
-const followUpSummary = document.getElementById("follow-up-response")
-
-
-//! ------------------- Export Features -------------------
-
-import { jsPDF } from 'jspdf';
-
-
-document.getElementById('export-summary-pdf').addEventListener('click', () => {
-  const doc = new jsPDF();
-  const text = currentSummary || "No summary available";
-  const lines = doc.splitTextToSize(text, 180);
-  doc.text(lines, 10, 10);
-  doc.save("summary.pdf");
-});
-
-
-// ------------------- Event Listeners -------------------
-[summaryTypeSelect, summaryFormatSelect, summaryLengthSelect].forEach((e) =>
-  e.addEventListener('change', onConfigChange)
-);
-
-
-chrome.storage.session.get('pageContent', ({ pageContent }) => {
-  onContentChange(pageContent);
-});
-
-chrome.storage.session.onChanged.addListener((changes) => {
-  const pageContent = changes['pageContent'];
-  onContentChange(pageContent.newValue);
-});
-
-function onConfigChange() {
-  const oldContent = pageContent;
-  pageContent = '';
-  onContentChange(oldContent);
-}
-
-window.addEventListener('load', async () => {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-  // Ignore extension pages
-  if (tab.url.startsWith("chrome-extension://")) return;
-
-  // Reload the tab
-  chrome.tabs.reload(tab.id, {}, () => {
-    console.log("Tab reloaded to enable content extraction");
-  });
-});
-
-//* ------------------- Main Content Change -------------------
-async function onContentChange(newContent) {
-  if (pageContent === newContent) return false;
-
-  pageContent = newContent;
-  let summary;
-
-
-
-  if (newContent) {
-    if (newContent.length > MAX_MODEL_CHARS) {
-      updateWarning(`Text is too long with ${newContent.length} characters (limit: ~10000).`);
-      return;
-    } else {
-      updateWarning('');
-    }
-
-    showSummary('Loading...');
-    summary = await generateSummary(newContent);
-  } else {
-    summary = "There's nothing to summarize...";
-  }
-
-  currentSummary = summary;
-  showSummary(summary);
-  mcqElement.style.display = 'none';
-  generateMcqButton.disabled = !summary || summary.startsWith("Error") || summary === "There's nothing to summarize...";
-  exportButton.disabled = !summary || summary.startsWith("Error") || summary === "There's nothing to summarize...";
-  followUpInputArea.hidden = !summary || summary.startsWith("Error") || summary === "There's nothing to summarize...";
-}
-
-//$ ------------------- Generate Summary -------------------
-async function generateSummary(text,
-   context="You are summarizing a subject\'s content for a student, make it as clear as possible.",
-  forceFormat = false) {
   try {
-
-     let options = {
-      sharedContext: context,
-      type: "tldr",
-      format: "markdown",
-      lenght: "short"
-    }
-
-
-    if (forceFormat == false) {
-     options = {
-      sharedContext: context,
-      type: summaryTypeSelect.value,
-      format: summaryFormatSelect.value,
-      length: summaryLengthSelect.value
-    };
-  } 
-    const availability = await Summarizer.availability();
-    if (availability === 'unavailable') return 'Summarizer API is not available';
-
-    const summarizer = await Summarizer.create(options);
-    if (availability !== 'available') {
-      summarizer.addEventListener('downloadprogress', (e) =>
-        console.log(`Downloaded ${e.loaded * 100}%`)
-      );
-      await summarizer.ready;
-    }
-
-    const summary = await summarizer.summarize(text);
-    summarizer.destroy();
-    return summary;
-  } catch (e) {
-    console.error('Summary generation failed', e);
-    return 'Error: ' + e.message;
-  }
-}
-
-//& ------------------- Button Clicks -------------------
-generateMcqButton.addEventListener('click', async () => {
-  if (!currentSummary) {
-    showMCQ([]); // Pass empty array
-    generateMcqButton.disabled = true;
-    return;
-  }
-
-  generateMcqButton.textContent = 'Generating...';
-
-  const mcq = await generateMCQ(currentSummary);
-  if (typeof mcq === 'string') {
-    showMCQ([]); // Show error fallback
-    mcqElement.innerHTML = `<div class="text-danger">${mcq}</div>`;
-  } else {
-    showMCQ(mcq);
-    mcqElement.style.display = 'block';
-  }
-
-  generateMcqButton.disabled = false;
-  generateMcqButton.textContent = 'Generate MCQs';
-});
-
-refreshExtractionButton.addEventListener("click", async () => {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-  if (tab.url.startsWith("chrome-extension://")) {
-    alert("Open a regular webpage to extract content from.");
-    return;
-  }
-
-  await chrome.scripting.executeScript({
-    target: { tabId: tab.id },
-    func: () => {
-      const content = document.body.innerText || '';
-      console.log("✅ Extracted from:", window.location.href);
-      chrome.storage.session.set({ pageContent: content });
-    },
-  });
-});
-
-followUpButton.addEventListener('click', async () => {
-  const followUpText = document.getElementById('follow-up').value;
-
-  if (!followUpText || followUpText.trim() === "") {
-  alert("Please enter a question before submitting. " + followUpText);
-  return;
-}
-
-
-const question = "You said " + currentSummary + ". But " + followUpText + "?"
-
-followUpSummary.hidden = false;
-followUpSummary.textContent = "Thinking.."
-const followupResponse = await generateSummary(question, "A student is asking you a question based on your previous summary, answer the question in a simple yet easy to understand way", true)
-followUpSummary.innerHTML = DOMPurify.sanitize(marked.parse(followupResponse));
-
-
-})
-
-//! ------------------- Generate MCQ Function -------------------
-async function generateMCQ(text, retries = 2) {
-  async function attempt() {
-    const options = {
-      sharedContext: `You are a study assistant. Based on the provided summary, generate multiple choice questions in the following JSON format:
-
-[
-  {
-    "question": "What is the capital of France?",
-    "choices": ["A. Paris", "B. Rome", "C. Madrid", "D. Berlin"],
-    "answer": "A"
-  }
-]
-
-Only output raw JSON. Do not add any explanation, Markdown, or headings.`,
-      type: 'tldr',
-      format: 'plain-text',
-      length: summaryLengthSelect.value
-    };
-
-    const availability = await Summarizer.availability();
-    if (availability === 'unavailable') throw new Error('Summarizer API is not available');
-
-    const summarizer = await Summarizer.create(options);
-    if (availability !== 'available') {
-      summarizer.addEventListener('downloadprogress', (e) =>
-        console.log(`Downloaded ${e.loaded * 100}%`)
-      );
-      await summarizer.ready;
-    }
-
-    const raw = await summarizer.summarize(text);
-    summarizer.destroy();
-
-    const extracted = extractJSON(raw);
-    if (!extracted || !isValidMCQList(extracted)) {
-      console.error('Invalid MCQ format:', raw);
-      throw new Error('Malformed MCQ output.');
-    }
-
-    return extracted;
-  }
-
-  //! Retry logic
-  for (let i = 0; i <= retries; i++) {
-    try {
-      return await attempt();
-    } catch (e) {
-      console.warn(`Attempt ${i + 1} failed:`, e.message);
-      if (i === retries) return 'Error: ' + e.message;
-    }
-  }
-}
-
-
-function extractJSON(raw) {
-  const jsonStart = raw.indexOf('[');
-  const jsonEnd = raw.lastIndexOf(']');
-  if (jsonStart !== -1 && jsonEnd !== -1) {
-    const jsonString = raw.slice(jsonStart, jsonEnd + 1);
-    try {
-      return JSON.parse(jsonString);
-    } catch (e) {
-      console.warn("Extracted JSON is still invalid:", jsonString);
-      return null;
-    }
-  }
-  return null;
-}
-
-
-function isValidMCQList(mcqList) {
-  if (!Array.isArray(mcqList)) return false;
-  return mcqList.every(mcq =>
-    typeof mcq.question === 'string' &&
-    Array.isArray(mcq.choices) &&
-    mcq.choices.length === 4 &&
-    mcq.choices.every(choice => typeof choice === 'string') &&
-    typeof mcq.answer === 'string'
-  );
-}
-
-
-//& ------------------- Render Functions -------------------
-function showSummary(text) {
-  summaryElement.innerHTML = DOMPurify.sanitize(marked.parse(text));
-}
-
-function showMCQ(mcqList) {
-  const container = document.getElementById('mcq');
-  container.innerHTML = ''; // Clear old MCQs
-
-  const inner = document.createElement('div');
-  inner.id = 'mcq-list';
-
-  if (!Array.isArray(mcqList) || mcqList.length === 0) {
-    inner.innerHTML = '<p>No MCQs to display.</p>';
-    container.appendChild(inner);
-    return;
-  }
-
-  mcqList.forEach((mcq, index) => {
-    const card = document.createElement('div');
-    card.className = 'card p-3 mb-3';
-
-    const question = document.createElement('p');
-    question.textContent = `Q${index + 1}: ${mcq.question}`;
-    question.style.color = 'white';
-    card.appendChild(question);
-
-    const feedback = document.createElement('div');
-    feedback.className = 'mt-2';
-
-    mcq.choices.forEach(choice => {
-      const btn = document.createElement('button');
-      btn.textContent = choice;
-      btn.className = 'btn btn-outline-primary m-1';
-      btn.addEventListener('click', () => {
-        const isCorrect = choice.startsWith(mcq.answer);
-        feedback.textContent = isCorrect ? '✅ Correct!' : `❌ Incorrect. Correct answer: ${mcq.answer}`;
-        feedback.style.color = isCorrect ? 'green' : 'red';
-        card.querySelectorAll('button').forEach(b => b.disabled = true);
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab.url.startsWith("chrome-extension://")) {
+      chrome.tabs.reload(tab.id, {}, () => {
+        console.log("Tab reloaded to enable content extraction on extension load");
       });
+    }
+  } catch (err) {
+    console.warn("Failed to refresh tab on load:", err);
+  }
 
-      card.appendChild(btn);
-    });
 
-    card.appendChild(feedback);
-    inner.appendChild(card);
+  chrome.storage.session.get('pageContent', ({ pageContent }) => {
+    onContentChange(pageContent);
+
   });
 
-  container.appendChild(inner);
-}
+  chrome.storage.session.onChanged.addListener((changes) => {
+    const pageContent = changes['pageContent'];
+    onContentChange(pageContent.newValue);
 
-function updateWarning(warning) {
-  warningElement.textContent = warning;
-  if (warning) warningElement.removeAttribute('hidden');
-  else warningElement.setAttribute('hidden', '');
-}
+  });
+
+  ['#type', '#format', '#length'].forEach(id =>
+    document.querySelector(id).addEventListener('change', onConfigChange)
+    
+  );
+
+});
