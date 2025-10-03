@@ -14,7 +14,6 @@ export function setupMCQButton() {
     button.textContent = 'Generating...';
 
     const mcqs = await generateMCQ(summary);
-    alert("generated.")
     showMCQ(mcqs);
 
     button.disabled = false;

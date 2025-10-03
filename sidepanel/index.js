@@ -1,5 +1,6 @@
 import { onContentChange, onConfigChange } from './core/summary.js';
 import { setupMCQButton } from './core/mcq.js';
+import { setupHighlightButton } from './core/highlight.js';
 import { setupFollowUp } from './core/followup.js';
 import { setupExportButtons } from './core/export.js';
 
@@ -7,6 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupMCQButton();
   setupFollowUp();
   setupExportButtons();
+  setupHighlightButton();
 
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });

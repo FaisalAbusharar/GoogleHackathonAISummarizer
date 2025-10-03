@@ -63,3 +63,63 @@ export function showMCQ(mcqList) {
   container.appendChild(inner);
   container.style.display = 'block';
 }
+
+export function highlightKeywordsInPage(keywords) {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tabId = tabs[0].id;
+    chrome.scripting.executeScript({
+      target: { tabId },
+      func: highlightKeywordsScript,
+      args: [keywords]
+    });
+  });
+}
+
+function highlightKeywordsScript(keywords) {
+  if (!Array.isArray(keywords) || keywords.length === 0) return;
+
+
+  const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+
+  let node;
+  while ((node = walk.nextNode())) {
+    for (const keyword of keywords) {
+      if (node.nodeValue.toLowerCase().includes(keyword.toLowerCase())) {
+        highlightTextNode(node, keyword);
+        break; 
+      }
+    }
+  }
+
+  function highlightTextNode(textNode, keyword) {
+    alert("highlighting...")
+    const regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
+    const matches = [...textNode.nodeValue.matchAll(regex)];
+
+    if (matches.length === 0) return;
+
+    const fragment = document.createDocumentFragment();
+    let lastIndex = 0;
+
+    for (const match of matches) {
+      const before = textNode.nodeValue.slice(lastIndex, match.index);
+      const matchedText = match[0];
+      lastIndex = match.index + matchedText.length;
+
+      if (before) {
+        fragment.appendChild(document.createTextNode(before));
+      }
+
+      const mark = document.createElement('mark');
+      mark.textContent = matchedText;
+      fragment.appendChild(mark);
+    }
+
+    const after = textNode.nodeValue.slice(lastIndex);
+    if (after) {
+      fragment.appendChild(document.createTextNode(after));
+    }
+
+    textNode.parentNode.replaceChild(fragment, textNode);
+  }
+}
