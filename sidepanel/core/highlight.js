@@ -55,21 +55,22 @@ Helsinki Bus Station Theory, sticking with your creative path, facing comparison
       length: 'short'
     };
 
-    const availability = await Summarizer.availability();
+    const availability = await  Writer.availability();
     if (availability === 'unavailable') throw new Error('Summarizer API is not available');
 
-    const summarizer = await Summarizer.create(options);
+    const writer = await Writer.create(options);
     if (availability !== 'available') {
-      summarizer.addEventListener('downloadprogress', (e) =>
+      writer.addEventListener('downloadprogress', (e) =>
         console.log(`Downloaded ${e.loaded * 100}%`)
       );
       await summarizer.ready;
     }
 
-    const keywords = await summarizer.summarize(text);
-    summarizer.destroy();
+    const keywords = await writer.write(text);
+    writer.destroy();
 
     const keywordArray = keywords.split(',').map(k => k.trim());
+    alert(keywordArray);
 
     return keywordArray || "There's nothing to summarize...";
 
