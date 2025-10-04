@@ -1,5 +1,4 @@
 import { highlightKeywordsInPage } from '../ui/render.js';
-import { getCurrentSummary } from './summary.js';
 
 
 export function setupHighlightButton() {
@@ -18,7 +17,7 @@ export function setupHighlightButton() {
         return;
       }
       const keywords = await highlight(pageContent);
-      alert(keywords)
+      // alert(keywords)
       highlightKeywordsInPage(keywords);
 
 
@@ -29,7 +28,7 @@ export function setupHighlightButton() {
 }
 
 export async function highlight(text, lengthSelectorId = 'length') {
-    const length = document.querySelector(`#${lengthSelectorId}`).value;
+    // const length = document.querySelector(`#${lengthSelectorId}`).value;
 
     const options = {
       sharedContext: `
@@ -53,7 +52,7 @@ Output:
 Helsinki Bus Station Theory, sticking with your creative path, facing comparisons to others, re-working and revising your ideas, staying on the same "bus", develop a unique vision, accumulating hours of practice, revisiting and refining your work, commit to the hard work of revision`,
       type: 'tldr',
       format: 'plain-text',
-      length: 'shorts'
+      length: 'short'
     };
 
     const availability = await Summarizer.availability();

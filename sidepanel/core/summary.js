@@ -2,6 +2,9 @@ import { showSummary, updateWarning } from '../ui/render.js';
 import { MAX_MODEL_CHARS } from '../ui/constants.js';
 import { setSummaryStateEnabled } from '../utils/utils.js';
 
+const followupDiv = document.getElementById("input")
+
+
 /**
  * Internal state
  */
@@ -36,14 +39,21 @@ export async function onContentChange(newContent) {
   if (pageContent === newContent) return;
 
   pageContent = newContent;
+  const summaryDiv = document.getElementById("summary")
+ 
+
+
 
   if (!newContent || newContent.length > MAX_MODEL_CHARS) {
     updateWarning('Text is too long or empty');
     setCurrentSummary(null);
     showSummary('');
+    summaryDiv.hidden = true;
+    followupDiv.hidden = true;
     return;
   }
 
+  summary.hidden = false;
   updateWarning('');
   showSummary('Loading...');
 
@@ -51,6 +61,7 @@ export async function onContentChange(newContent) {
     const summary = await generateSummary(newContent);
     setCurrentSummary(summary);
     showSummary(summary);
+    followupDiv.hidden = false;
   } catch (e) {
     console.error('Failed to generate summary', e);
     setCurrentSummary(null);

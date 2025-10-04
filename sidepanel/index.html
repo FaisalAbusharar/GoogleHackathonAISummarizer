@@ -61,17 +61,17 @@
 
     <div class="result mb-3 card card-body" id="summary">There's nothing to summarize...</div>
 
-    <div id="input" class="mb-3 card card-body">
-      <textarea id="follow-up" placeholder="Ask Anything"></textarea>
+    <div id="input" class="mb-3 card card-body" hidden>
+      <textarea id="follow-up" placeholder="Ask about the summary."></textarea>
       <button id="ask-follow-up">Ask</button>
-      <div id="follow-up-response" class="mb-3 card card-body"></div>
+      <div id="follow-up-response" class="mb-3 card card-body" hidden></div>
     </div>
 
     <div id="buttonContainer" class="mb-3">
       <button id="generate-mcq" class="btn btn-primary w-100" disabled>
         Generate MCQs
       </button>
-    <button id="export-summary-pdf" class="btn btn-outline-success">Export Summary as PDF</button>
+    <button id="export-summary-pdf" class="btn btn-outline-success" disabled>Export Summary as PDF</button>
     </div>
 
 
