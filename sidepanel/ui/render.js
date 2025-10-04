@@ -1,4 +1,7 @@
 import { sanitizeMarkdown } from '../utils/utils.js';
+import {isDarkMode} from '../utils/theme.js'
+
+
 
 export function showSummary(text) {
   document.getElementById('summary').innerHTML = sanitizeMarkdown(text);
@@ -11,38 +14,36 @@ export function updateWarning(msg) {
 }
 
 
-export function showMCQ(mcqList) {
-  alert("render process.")
+export async function showMCQ(mcqList) {
   const container = document.getElementById('mcq');
   container.innerHTML = ''; // Clear old MCQs
 
   const inner = document.createElement('div');
   inner.id = 'mcq-list';
 
+  const darkMode = await isDarkMode();
+
   if (!Array.isArray(mcqList) || mcqList.length === 0) {
     inner.innerHTML = '<p>No MCQs to display.</p>';
     container.appendChild(inner);
     return;
   }
-  alert("trying to render.")
   mcqList.forEach((mcq, index) => {
-    alert("rendering.....")
     const card = document.createElement('div');
     card.className = 'card p-3 mb-3';
 
     const question = document.createElement('p');
     question.textContent = `Q${index + 1}: ${mcq.question}`;
-    question.style.color = 'white';
+    question.style.color = darkMode ? 'white' : 'black';
     card.appendChild(question);
 
     const feedback = document.createElement('div');
     feedback.className = 'mt-2';
 
     mcq.choices.forEach(choice => {
-      alert("rendering again help.")
       const btn = document.createElement('button');
       btn.textContent = choice;
-      btn.className = 'btn btn-outline-primary m-1';
+      btn.className = darkMode ? 'btn btn-outline-primary m-1' : 'btn btn-primary m-1';
       btn.addEventListener('click', () => {
         const isCorrect = choice.startsWith(mcq.answer);
         feedback.textContent = isCorrect
@@ -53,7 +54,6 @@ export function showMCQ(mcqList) {
       });
 
       card.appendChild(btn);
-      alert("append")
     });
 
     card.appendChild(feedback);
@@ -63,6 +63,7 @@ export function showMCQ(mcqList) {
   container.appendChild(inner);
   container.style.display = 'block';
 }
+
 
 export function highlightKeywordsInPage(keywords) {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -101,37 +102,4 @@ function highlightKeywordsScript(keywords) {
   walk(document.body);
 }
 
-
-
-  function highlightTextNode(textNode, keyword) {
-    alert("highlighting...")
-    const regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
-    const matches = [...textNode.nodeValue.matchAll(regex)];
-
-    if (matches.length === 0) return;
-
-    const fragment = document.createDocumentFragment();
-    let lastIndex = 0;
-
-    for (const match of matches) {
-      const before = textNode.nodeValue.slice(lastIndex, match.index);
-      const matchedText = match[0];
-      lastIndex = match.index + matchedText.length;
-
-      if (before) {
-        fragment.appendChild(document.createTextNode(before));
-      }
-
-      const mark = document.createElement('mark');
-      mark.textContent = matchedText;
-      fragment.appendChild(mark);
-    }
-
-    const after = textNode.nodeValue.slice(lastIndex);
-    if (after) {
-      fragment.appendChild(document.createTextNode(after));
-    }
-
-    textNode.parentNode.replaceChild(fragment, textNode);
-  }
 

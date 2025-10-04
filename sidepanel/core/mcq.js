@@ -44,27 +44,25 @@ Only output raw JSON. Do not add any explanation, Markdown, or headings.`,
       length: length
     };
 
-    const availability = await Summarizer.availability();
-    if (availability === 'unavailable') throw new Error('Summarizer API is not available');
+    const availability = await Writer.availability();
+    if (availability === 'unavailable') throw new Error('Writer API is not available');
 
-    const summarizer = await Summarizer.create(options);
+    const writer = await Writer.create(options);
     if (availability !== 'available') {
-      summarizer.addEventListener('downloadprogress', (e) =>
+      writer.addEventListener('downloadprogress', (e) =>
         console.log(`Downloaded ${e.loaded * 100}%`)
       );
-      await summarizer.ready;
+      await writer.ready;
     }
 
-    const raw = await summarizer.summarize(text);
-    summarizer.destroy();
+    const raw = await writer.write(text);
+    writer.destroy();
 
     const extracted = extractJSON(raw);
     if (!extracted || !isValidMCQList(extracted)) {
       console.error('Invalid MCQ format:', raw);
-      alert("invalid format")
       throw new Error('Malformed MCQ output.');
     }
-    alert("returned.")
     return extracted;
     
   }

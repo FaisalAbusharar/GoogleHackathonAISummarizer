@@ -1,5 +1,6 @@
-import { generateSummary, getCurrentSummary } from './summary.js';
+import { getCurrentSummary } from './summary.js';
 import { sanitizeMarkdown } from '../utils/utils.js';
+import { generateWriting } from './writer.js';
 
 export function setupFollowUp() {
   const input = document.getElementById('follow-up');
@@ -15,9 +16,9 @@ export function setupFollowUp() {
     output.hidden = false;
     output.textContent = 'Thinking...';
 
-    const result = await generateSummary(
+    const result = await generateWriting(
       prompt,
-      'A student is asking a question based on your summary. Answer clearly.',
+      'A student is asking a question based on your summary. Answer clearly. Do not summarize, only answer the question',
       true
     );
 

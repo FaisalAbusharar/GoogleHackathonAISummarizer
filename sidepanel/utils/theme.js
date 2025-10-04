@@ -13,6 +13,13 @@ toggleButton.addEventListener('click', () => {
   }
 });
 
+export async function isDarkMode() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get('darkMode', ({ darkMode }) => {
+      resolve(Boolean(darkMode)); // Ensure it's a boolean
+    });
+  });
+}
 
 
 
