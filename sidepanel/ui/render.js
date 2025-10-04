@@ -78,18 +78,30 @@ export function highlightKeywordsInPage(keywords) {
 function highlightKeywordsScript(keywords) {
   if (!Array.isArray(keywords) || keywords.length === 0) return;
 
+  // Escape special regex characters
+  const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-  const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+  // Sort keywords by length descending to match longest phrases first
+  const sortedKeywords = [...keywords].sort((a, b) => b.length - a.length);
+  const regex = new RegExp(`\\b(${sortedKeywords.map(escapeRegex).join('|')})\\b`, 'gi');
 
-  let node;
-  while ((node = walk.nextNode())) {
-    for (const keyword of keywords) {
-      if (node.nodeValue.toLowerCase().includes(keyword.toLowerCase())) {
-        highlightTextNode(node, keyword);
-        break; 
+  function walk(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      if (regex.test(node.nodeValue)) {
+        const wrapper = document.createElement('span');
+        wrapper.innerHTML = node.nodeValue.replace(regex, '<mark>$1</mark>');
+        node.parentNode.replaceChild(wrapper, node);
       }
+    } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'MARK') {
+      // Avoid re-highlighting inside already highlighted <mark>
+      Array.from(node.childNodes).forEach(walk);
     }
   }
+
+  walk(document.body);
+}
+
+
 
   function highlightTextNode(textNode, keyword) {
     alert("highlighting...")
@@ -122,4 +134,4 @@ function highlightKeywordsScript(keywords) {
 
     textNode.parentNode.replaceChild(fragment, textNode);
   }
-}
+
