@@ -3,6 +3,9 @@ import { setupMCQButton } from './core/mcq.js';
 import { setupHighlightButton } from './core/highlight.js';
 import { setupFollowUp } from './core/followup.js';
 import { setupExportButtons } from './core/export.js';
+import { setButtonMode } from './utils/theme.js';
+
+const themeLink = document.getElementById('theme-style');
 
 document.addEventListener('DOMContentLoaded', async () => {
   setupMCQButton();
@@ -20,6 +23,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   } catch (err) {
     console.warn("Failed to refresh tab on load:", err);
   }
+
+
+  chrome.storage.local.get('darkMode', ({ darkMode }) => {
+    themeLink.setAttribute('href', darkMode ? 'dark.css' : 'light.css');
+    setButtonMode(darkMode)
+  });
+
 
 
   chrome.storage.session.get('pageContent', ({ pageContent }) => {

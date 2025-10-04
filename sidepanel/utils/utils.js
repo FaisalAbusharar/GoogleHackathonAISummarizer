@@ -10,3 +10,4 @@ export function setSummaryStateEnabled(enabled) {
   document.getElementById('export-summary-pdf').disabled = !enabled;
   document.getElementById('input').hidden = !enabled;
 }
+
