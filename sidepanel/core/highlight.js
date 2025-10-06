@@ -34,7 +34,7 @@ export async function highlight(text, lengthSelectorId = 'length') {
       sharedContext: `
 You are a precise keyword extraction assistant.
 
-Your ONLY job is to extract key phrases or terms from the provided text that are directly stated and important to understanding the subject. Do NOT summarize, interpret, or rewrite any part of the text.
+Your ONLY job is to extract key phrases, terms, or sentences from the provided text that are directly stated and important to understanding the subject. Do NOT summarize, interpret, or rewrite any part of the text.
 
 Rules:
 - Only extract **phrases exactly as they appear**

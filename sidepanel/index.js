@@ -4,6 +4,7 @@ import { setupHighlightButton } from './core/highlight.js';
 import { setupFollowUp } from './core/followup.js';
 import { setupExportButtons } from './core/export.js';
 import { setButtonMode } from './utils/theme.js';
+import { setupFlashcardButton } from './core/flashcard.js';
 
 const themeLink = document.getElementById('theme-style');
 
@@ -12,7 +13,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupFollowUp();
   setupExportButtons();
   setupHighlightButton();
-
+  setupFlashcardButton();
+  
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab.url.startsWith("chrome-extension://")) {

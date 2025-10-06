@@ -143,7 +143,8 @@ legend {
   margin: 20px;
   color: white;
   border-radius: 6px;
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
+  white-space: nowrap;
   font-size: large;
   
   border: 2px solid transparent;  
@@ -181,7 +182,8 @@ legend {
     margin: 20px;
   color: white;
   border-radius: 6px;
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
+  white-space: nowrap;
   font-size: large;
   
   border: 2px solid transparent;  
@@ -284,4 +286,34 @@ legend {
   background-clip: padding-box, border-box;
 
   
+}
+
+
+#generate-flashcard {
+
+  margin: 20px;
+  color: white;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  white-space: nowrap;
+  font-size: large;
+  
+  border: 2px solid transparent;  
+  background-image: 
+    linear-gradient(#1e1e2f, #1e1e2f),       
+    linear-gradient(270deg, #e100ff, #9800fe, #ff00ea); 
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  animation: gradient-move 3s linear infinite;
+  
+  transition: transform 0.3s ease-in-out;
+}
+
+#generate-flashcard:not(:disabled):hover {
+   transform: scale(1.05); 
+   background-image: 
+    linear-gradient(#e100ff, #9800fe, #ff00ea),       
+    linear-gradient(270deg, #1e1e2f, #1e1e2f); 
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
 }
