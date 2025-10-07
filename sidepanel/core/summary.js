@@ -98,10 +98,18 @@ export async function generateSummary(
     length: 'short'
   };
 
+  if (document.querySelector("#type").value == "ELI5") {
+    context = context + ". Explain it like im 5.";
+  }
+
   if (!forceOptions) {
-    const type = document.querySelector('#type')?.value || 'tldr';
+    let type = document.querySelector('#type')?.value || 'tldr';
     const format = document.querySelector('#format')?.value || 'markdown';
     const length = document.querySelector('#length')?.value || 'short';
+
+    if (type == "ELI5") {
+      type = "tldr";
+    }
 
     options = { sharedContext: context, type, format, length };
   }
