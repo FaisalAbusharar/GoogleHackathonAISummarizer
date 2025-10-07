@@ -5,6 +5,7 @@ import { setupFollowUp } from './core/followup.js';
 import { setupExportButtons } from './core/export.js';
 import { setButtonMode } from './utils/theme.js';
 import { setupFlashcardButton } from './core/flashcard.js';
+import { setupCompareButton } from './core/compare.js';
 
 const themeLink = document.getElementById('theme-style');
 
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupExportButtons();
   setupHighlightButton();
   setupFlashcardButton();
+  setupCompareButton();
   
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });

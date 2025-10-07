@@ -58,7 +58,7 @@ fieldset > * {
   color: red !important;
 }
 
-.result, #summary, #mcq {
+.result, #summary, #mcq, #compare-container {
   position: relative;
   border-radius: 0.4em;
   color: white;
