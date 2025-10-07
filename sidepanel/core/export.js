@@ -4,10 +4,26 @@ import { getCurrentSummary } from './summary.js';
 export function setupExportButtons() {
   const btn = document.getElementById('export-summary-pdf');
   btn.addEventListener('click', () => {
-    const doc = new jsPDF();
-    const text = getCurrentSummary() || "No summary available";
-    const lines = doc.splitTextToSize(text, 180);
-    doc.text(lines, 10, 10);
+    exportSummaryPDF(getCurrentSummary())
     doc.save("summary.pdf");
   });
+}
+
+
+
+function exportSummaryPDF(summaryText) {
+  const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+  
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 40;
+
+  const lines = doc.splitTextToSize(summaryText, pageWidth - margin * 2);
+
+  doc.setFont("helvetica");
+  doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0);
+
+  doc.text(lines, margin, margin);
+
+  doc.save("summary.pdf");
 }
