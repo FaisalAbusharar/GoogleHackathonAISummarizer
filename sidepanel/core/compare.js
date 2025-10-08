@@ -4,7 +4,6 @@ import { sanitizeMarkdown } from "../utils/utils";
 
 export function setupCompareButton() {
 document.getElementById("compare-btn").addEventListener("click", async () => {
-  alert("click")
 
   const userUrl = document.getElementById("compare-url").value.trim();
   if (!userUrl) {
@@ -12,13 +11,12 @@ document.getElementById("compare-btn").addEventListener("click", async () => {
     return;
   }
 
-  alert("trying to fetch")
+  document.getElementById("compare-btn").textContent = "Comparing..";
   const compareContent = await fetchPageContent(userUrl);
   if (!compareContent) return;
 
   const summary1 = getCurrentSummary();
   const summary2 = await generateSummary(compareContent);
-  alert("comapring.")
 
   const comparisonPrompt = `
 Compare the following two summaries and highlight:
@@ -35,10 +33,10 @@ ${summary2}
 
 
   const comparisonResult = await generateAIComparison(comparisonPrompt); 
-    alert("generated comparsion")
 
   const resultContainer = document.getElementById("compare-result");
   resultContainer.innerHTML = sanitizeMarkdown(comparisonResult);
+  document.getElementById("compare-btn").textContent = "Compare";
 });
 }
 

@@ -58,7 +58,7 @@ fieldset > * {
   color: red !important;
 }
 
-.result, #summary, #mcq, #compare-container {
+.result, #summary, #mcq {
   position: relative;
   border-radius: 0.4em;
   color: rgb(0, 0, 0);
@@ -319,4 +319,20 @@ legend {
     linear-gradient(#ffffff, #fafafa);
   background-origin: border-box;
   background-clip: padding-box, border-box;
+}
+
+#compare-container {
+  align-content: center;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 25px;
+
+}
+
+#compare-url {
+  width: 350px;
+  margin: 5px;
+  padding-right: 2px;
+  padding-right: 10px;
+  color: white;
 }
