@@ -10,14 +10,15 @@ export async function generateWriting(
     instructions: "Summarize the following text clearly for a student.",
     type: 'writer',
     format: 'markdown',
-    length: 'short'
+    length: 'short',
+    output_language: "en"
   };
 
   if (!forceOptions) {
     const type = document.querySelector('#type')?.value || 'writer';
     const format = document.querySelector('#format')?.value || 'markdown';
     const length = document.querySelector('#length')?.value || 'short';
-    options = { sharedContext: context, instructions: options.instructions, type, format, length };
+    options = { sharedContext: context, instructions: options.instructions, type, format, length,  output_language: "en" };
   }
 
   try {

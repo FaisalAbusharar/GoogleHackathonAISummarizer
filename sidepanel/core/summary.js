@@ -98,7 +98,8 @@ export async function generateSummary(
     sharedContext: context,
     type: 'tldr',
     format: 'markdown',
-    length: 'short'
+    length: 'short',
+    output_language: "en"
   };
 
   if (document.querySelector("#type").value == "ELI5") {
@@ -114,7 +115,7 @@ export async function generateSummary(
       type = "tldr";
     }
 
-    options = { sharedContext: context, type, format, length };
+    options = { sharedContext: context, type, format, length, output_language: "en" };
   }
 
   try {

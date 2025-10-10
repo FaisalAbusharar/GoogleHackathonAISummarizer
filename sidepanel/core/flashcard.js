@@ -65,7 +65,8 @@ export async function generateFlashcards(text, retries = 2, lengthSelectorId = '
 Only output raw JSON. Do not add any explanation, Markdown, or headings.`,
       type: 'tldr',
       format: 'plain-text',
-      length: length
+      length: length,
+      output_language: "en"
     };
 
     const availability = await Writer.availability();

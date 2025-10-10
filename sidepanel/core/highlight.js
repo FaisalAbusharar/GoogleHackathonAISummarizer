@@ -52,7 +52,8 @@ Output:
 Helsinki Bus Station Theory, sticking with your creative path, facing comparisons to others, re-working and revising your ideas, staying on the same "bus", develop a unique vision, accumulating hours of practice, revisiting and refining your work, commit to the hard work of revision`,
       type: 'tldr',
       format: 'plain-text',
-      length: 'short'
+      length: 'short',
+      output_language: "en"
     };
 
     const availability = await  Writer.availability();

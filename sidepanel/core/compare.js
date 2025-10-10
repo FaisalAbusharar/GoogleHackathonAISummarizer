@@ -45,7 +45,8 @@ async function generateAIComparison(text) {
     sharedContext: 'comparing the two texts provided.',
     type: 'tldr',
     format: 'markdown',
-    length: 'medium'
+    length: 'medium',
+    output_language: "en"
   };
 
   try {

@@ -41,7 +41,8 @@ export async function generateMCQ(text, retries = 2, lengthSelectorId = 'length'
 Only output raw JSON. Do not add any explanation, Markdown, or headings.`,
       type: 'tldr',
       format: 'plain-text',
-      length: length
+      length: length,
+      output_language: "en"
     };
 
     const availability = await Writer.availability();

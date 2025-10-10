@@ -3,32 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-
-
     <title>Summarizer Extension</title>
 
     <link id="theme-style" rel="stylesheet" type="text/css" href="light.css" />
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
       rel="stylesheet"
       integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
       crossorigin="anonymous"
     />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
   </head>
 
   <body class="p-3">
     <button id="themeToggle">Dark Mode</button>
+
     <div class="card p-3 mb-3">
       <fieldset>
         <legend>Settings</legend>
         <div>
-          <label for="type" >Summary Type:</label>
+          <label for="type">Summary Type:</label>
           <select id="type">
             <option value="key-points" selected>Key Points</option>
             <option value="tldr">TL;DR</option>
@@ -37,6 +31,7 @@
             <option value="ELI5">ELI5</option>
           </select>
         </div>
+
         <div>
           <label for="length">Length:</label>
           <select id="length">
@@ -45,6 +40,7 @@
             <option value="long">Long</option>
           </select>
         </div>
+
         <div class="mb-2">
           <label for="format">Format:</label>
           <select id="format">
@@ -52,6 +48,7 @@
             <option value="plain-text">Plain text</option>
           </select>
         </div>
+
         <div id="extract">
           <button id="extractBtn" class="btn btn-outline-danger">Refresh Summary</button>
           <button id="highlightBtn" class="btn btn-outline-primary">Highlight Keywords</button>
@@ -63,13 +60,13 @@
 
     <div class="result mb-3 card card-body" id="summary">There's nothing to summarize...</div>
 
-      <div id="compare-container" hidden>
-        <input type="text" id="compare-url" placeholder="Enter URL to compare with" />
-        <button class="btn btn-outline-warning" id="compare-btn">Compare</button>
-        <br></br>
-      </div>
-        <div id="compare-result"></div>
-      </div>
+    <div id="compare-container" hidden>
+      <input type="text" id="compare-url" placeholder="Enter URL to compare with" />
+      <button class="btn btn-outline-warning" id="compare-btn">Compare</button>
+      <br />
+    </div>
+
+    <div id="compare-result"></div>
 
     <div id="input" class="mb-3 card card-body" hidden>
       <textarea id="follow-up" placeholder="Ask about the summary."></textarea>
@@ -81,24 +78,18 @@
       <button id="generate-mcq" class="btn btn-primary w-100" disabled>
         Generate MCQs
       </button>
-    <button id="export-summary-pdf" class="btn btn-outline-success" disabled>Export Summary as PDF</button>
-    <button id="generate-flashcard" class="btn btn-primary w-100" disabled>
+      <button id="export-summary-pdf" class="btn btn-outline-success" disabled>
+        Export Summary as PDF
+      </button>
+      <button id="generate-flashcard" class="btn btn-primary w-100" disabled>
         Generate Flashcards
       </button>
-    
     </div>
-
-
 
     <div class="result" id="mcq" style="display: none;"></div>
 
-    <script src="index.js" type="module"></script>
-
-    <script>
-      const choices = new Choices('#length', {
-        searchEnabled: false,
-        itemSelectText: '',
-      });
-    </script>
+    <script src="scripts/choices.min.js"></script>
+    <script type="module" src="./utils/choices-init.js`"></script>
+    <script type="module" src="index.js"></script>
   </body>
 </html>
