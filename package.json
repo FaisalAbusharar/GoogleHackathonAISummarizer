@@ -1,5 +1,5 @@
 {
-  "name": "Study Summarizer",
+  "name": "Study Assistant",
   "private": true,
   "version": "1.0.0",
   "description": "",
@@ -22,5 +22,15 @@
     "bootstrap": "^5.3.8",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.3"
+  },
+  "action": {
+    "default_icon": {
+      "16": "./images/icon16.png",
+      "32": "./images/icon32.png",
+      "48": "./images/icon48.png",
+      "128": "./images/icon128.png"
+    },
+    "default_title": "Powerful summary tool for students."
   }
+  
 }
