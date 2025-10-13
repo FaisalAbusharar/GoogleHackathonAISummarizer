@@ -3,3 +3,7 @@ node_modules
 ./node_modules
 node_modules/
 .node_modules
+private_manifest.json
+./private_manifest.json
+/private_manifest.json
+
