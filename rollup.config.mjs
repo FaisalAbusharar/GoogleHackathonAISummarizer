@@ -17,8 +17,14 @@ export default [
       copy({
         targets: [
           {
-            src: ['manifest.json', 'background.js', 'sidepanel', 'images'],
-            dest: 'dist'
+            src: [
+              'manifest.json',
+              'background.js',
+              'sidepanel/**/*',
+              'images/**/*'
+            ],
+            dest: 'dist',
+            ignore: ['**/*.disabled']  // <-- works now
           }
         ]
       })

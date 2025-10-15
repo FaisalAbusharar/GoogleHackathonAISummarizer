@@ -3,7 +3,7 @@ import { MAX_MODEL_CHARS } from '../ui/constants.js';
 import { setSummaryStateEnabled } from '../utils/utils.js';
 
 const followupDiv = document.getElementById("input")
-const compareDiv = document.getElementById("compare-container")
+// const compareDiv = document.getElementById("compare-container")
 
 
 /**
@@ -51,7 +51,7 @@ export async function onContentChange(newContent) {
     showSummary('');
     summaryDiv.hidden = true;
     followupDiv.hidden = true;
-    compareDiv.hidden = true;
+    // compareDiv.hidden = true;
     return;
   }
 
@@ -64,7 +64,7 @@ export async function onContentChange(newContent) {
     setCurrentSummary(summary);
     showSummary(summary);
     followupDiv.hidden = false;
-    compareDiv.hidden = false;
+    // compareDiv.hidden = false;
   } catch (e) {
     console.error('Failed to generate summary', e);
     setCurrentSummary(null);

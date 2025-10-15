@@ -26,7 +26,7 @@ export async function isDarkMode() {
 export function setButtonMode(isDark) {
   const extractBtn = document.getElementById('extractBtn');
   const highlightBtn = document.getElementById('highlightBtn');
-  const compareBtn = document.getElementById('compare-btn')
+  // const compareBtn = document.getElementById('compare-btn')
 
   if (isDark) {
     extractBtn.classList.add('btn-outline-danger');
@@ -35,8 +35,8 @@ export function setButtonMode(isDark) {
     highlightBtn.classList.add('btn-outline-primary');
     highlightBtn.classList.remove('btn-primary');
 
-    compareBtn.classList.add('btn-outline-warning');
-    compareBtn.classList.remove('btn-warning');
+    // compareBtn.classList.add('btn-outline-warning');
+    // compareBtn.classList.remove('btn-warning');
 
 
     toggleButton.textContent = "Light Mode"
@@ -47,8 +47,8 @@ export function setButtonMode(isDark) {
     highlightBtn.classList.remove('btn-outline-primary');
     highlightBtn.classList.add('btn-primary');
 
-    compareBtn.classList.add('btn-warning');
-    compareBtn.classList.remove('btn-outline-warning');
+    // compareBtn.classList.add('btn-warning');
+    // compareBtn.classList.remove('btn-outline-warning');
 
     toggleButton.textContent = "Dark Mode"
 
