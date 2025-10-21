@@ -2,7 +2,7 @@ import { onContentChange, onConfigChange } from './core/summary.js';
 import { setupMCQButton } from './core/mcq.js';
 import { setupHighlightButton } from './core/highlight.js';
 import { setupFollowUp } from './core/followup.js';
-import { setupExportButtons } from './core/export.js';
+// import { setupExportButtons } from './core/export.js';
 import { setButtonMode } from './utils/theme.js';
 import { setupFlashcardButton } from './core/flashcard.js';
 import { setupCompareButton } from './core/compare.js';
@@ -12,7 +12,7 @@ const themeLink = document.getElementById('theme-style');
 document.addEventListener('DOMContentLoaded', async () => {
   setupMCQButton();
   setupFollowUp();
-  setupExportButtons();
+  // setupExportButtons();
   setupHighlightButton();
   setupFlashcardButton();
   setupCompareButton();

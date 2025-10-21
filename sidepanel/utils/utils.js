@@ -7,7 +7,7 @@ export function sanitizeMarkdown(text) {
 
 export function setSummaryStateEnabled(enabled) {
   document.getElementById('generate-mcq').disabled = !enabled;
-  document.getElementById('export-summary-pdf').disabled = !enabled;
+  // document.getElementById('export-summary-pdf').disabled = !enabled;
   document.getElementById('generate-flashcard').disabled = !enabled;
   document.getElementById('input').hidden = !enabled;
 }
